@@ -2,4 +2,6 @@ Flask
 opencv-python
 dlib
 numpy
-PyAudio
+sounddevice
+scipy
+gunicorn
