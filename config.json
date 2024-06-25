@@ -1,0 +1,11 @@
+{
+    "face_predictor_path": "shape_predictor_68_face_landmarks.dat",
+    "audio_channels": 1, 
+    "audio_rate": 44100,
+    "audio_chunk": 2048,
+    "noise_threshold": 100,
+    "voice_threshold": 100,
+    "head_angle_threshold": 20,
+    "head_turn_duration": 1.0
+}
+

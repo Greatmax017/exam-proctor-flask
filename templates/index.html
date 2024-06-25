@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Monitoring</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            var source = new EventSource("/alerts");
+            source.onmessage = function(event) {
+                alert(event.data);
+            };
+
+            // Audio capture and processing
+            navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+                .then(stream => {
+                    const audioContext = new AudioContext();
+                    const source = audioContext.createMediaStreamSource(stream);
+                    const processor = audioContext.createScriptProcessor(1024, 1, 1);
+
+                    source.connect(processor);
+                    processor.connect(audioContext.destination);
+
+                    processor.onaudioprocess = function(e) {
+                        const audio_data = e.inputBuffer.getChannelData(0);
+                        fetch('/process_audio', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(Array.from(audio_data)),
+                        })
+                        .then(response => response.json())
+                        .then(data => console.log('SPL:', data.spl))
+                        .catch((error) => console.error('Error:', error));
+                    };
+
+                    // Attach the video stream to the video element
+                    const videoElement = document.getElementById('videoElement');
+                    videoElement.srcObject = stream;
+                })
+                .catch(err => console.error("Error accessing the microphone and camera:", err));
+        });
+    </script>
+</head>
+<body>
+    <h1>Exam Monitoring || Eye Tracking and Audio Detection</h1>
+    <img src="{{ url_for('video_feed') }}" width="640" height="480" id="videoElement">
+</body>
+</html>
